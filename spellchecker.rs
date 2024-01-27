@@ -8,17 +8,17 @@ pub struct Spellchecker {
 
 impl Spellchecker {
 
-    pub fn new(dictionary_file: &str) -> Spellchecker {
+    pub fn new(dictionary_file: &str) -> Option<Spellchecker> {
         if !fs::metadata(dictionary_file).is_ok() {
             panic!("Dictionary file not found");
         }
         let mut dictionary = Vec::new();
-        let reader = BufReader::new(fs::File::open(&dictionary_file).unwrap());
+        let reader = BufReader::new(fs::File::open(&dictionary_file).expect("Could not open file"));
         for line in reader.lines() {
             let line = line.expect("Could not read line");
             dictionary.push(line);
         }
-        Spellchecker { dictionary }
+        Some(Spellchecker { dictionary })
     }
 
     pub fn spellcheck(&self, word: &str) -> Option<String> {
