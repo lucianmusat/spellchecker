@@ -48,10 +48,13 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
         let spellchecked_sentence = spellcheck(&body_string_decoded).await;
         context.insert("spellchecked_sentences", &spellchecked_sentence);
     }
+    // Because this is both backend and frontend, we render the template for every request
+    Ok(render_frontend(tera, context).await?)
+}
 
-    let rendered_content = tera
-                                    .render("index.html", &context)
-                                    .map_err(|e| {
+async fn render_frontend(tera: &Tera, context: tera::Context) -> tide::Result {
+    let rendered_content = tera.render("index.html", &context)
+                                        .map_err(|e| {
                                             error!("Failed to render template: {}", format!("{:?}", e));
                                             tide::Error::new(tide::StatusCode::InternalServerError, e)
                                         }
