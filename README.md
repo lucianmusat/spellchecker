@@ -7,6 +7,8 @@ A small project I started to learn Rust. It should be a text box where you input
 
 ### TODO
 
-- [ ] Turn into a service that uses REST api
-- [ ] Implement simple frontend
+- [X] Turn into a service that uses REST api
+- [X] Implement simple frontend
+- [ ] Handle punctuation
 - [ ] Run it live
+- [ ] Add tests

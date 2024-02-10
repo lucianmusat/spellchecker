@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          crossorigin="anonymous">
+    <title>Spell Check App</title>
+    <style>
+        body {
+            background-color: #1E4B5B;
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+        }
+
+        .form-container {
+            max-width: 400px;
+            width: 100%;
+        }
+
+        #textInput {
+            border: 1px solid #ced4da;
+            padding: 8px;
+            font-size: 16px;
+            min-height: 100px;
+            width: 100%;
+            outline: none;
+            background-color: white;
+            resize: vertical;
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        #textInput:hover {
+            border-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container">
+        <h1 class="text-center mb-4">Spell Check App</h1>
+        <form id="spellCheckForm" action="/" method="post">
+            <div class="form-group">
+                <input type="hidden" id="hiddenInput" name="textInput" />
+                <div id="textInput" rows="5" cols="50" placeholder="Enter text here" contenteditable="true">{% if spellchecked_sentences %}{% for word in spellchecked_sentences %}{% if word.original == word.spellchecked %}{{ word.original }}{% else %}<span style="color: red; text-decoration: underline; cursor: pointer;" title="{{ word.spellchecked }}" onclick="replaceWithSpellchecked(this)">{{ word.original }}</span>{% endif %}{% if not loop.last %} {% endif %}{% endfor %}{% else %}My name is proffessor Lucian{% endif %}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block" onclick="sanitizeAndSubmit()">Spell Check</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.4/dist/purify.min.js"></script>
+        <script>
+            function sanitizeAndSubmit() {
+                var content = document.getElementById('textInput').innerHTML;
+                console.log("Content: ", content);
+                var sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
+                console.log("Sanitized Content: ", sanitizedContent);
+                document.getElementById('hiddenInput').value = sanitizedContent;
+            }
+        </script>
+        <script>
+            function replaceWithSpellchecked(spanElement) {
+                var spellcheckedValue = spanElement.getAttribute('title');
+                spanElement.textContent = spellcheckedValue;
+            }
+        </script>
+
+</body>
+</html>
