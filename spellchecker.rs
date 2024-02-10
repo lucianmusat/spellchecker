@@ -1,6 +1,7 @@
 use std::fs;
 use std::io::{BufRead, BufReader};
 
+const MIN_DISTANCE: usize = 1000;
 
 pub struct Spellchecker {
     dictionary : Vec<String>
@@ -22,7 +23,7 @@ impl Spellchecker {
     }
 
     pub fn spellcheck(&self, word: &str) -> Option<String> {
-        let mut min_distance = 1000;
+        let mut min_distance = MIN_DISTANCE;
         let mut closest_word = None;
 
         for dict_word in &self.dictionary {
