@@ -2,13 +2,12 @@
 
 ### What is it?
 
-A small project I started to learn Rust. It should be a text box where you input a text and it will return a spellchecked version. I don't have any idea what it will turn out to be in the end, we'll see.
-
+A small project I started to learn Rust. It's just a text box where you input a text and it will return a spellchecked version. The project is very simple and I am using the [Wagner-Fischer algorithm](https://en.wikipedia.org/wiki/Wagner%E2%80%93Fischer_algorithm) to check every word in the sentence against a [dictionary](./dictionary.txt) of words and see the closest match. It can handle basic punctuation but probably is missing a lot of corner cases.
 
 ### TODO
 
 - [X] Turn into a service that uses REST api
 - [X] Implement simple frontend
-- [ ] Handle punctuation
+- [X] Handle punctuation
 - [ ] Run it live
 - [ ] Add tests

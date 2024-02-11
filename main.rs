@@ -1,15 +1,13 @@
 mod spellchecker;
+mod spellchecked;
+mod spellcheck_parser;
 
 use log::{info, debug, error};
 use tera::Tera;
 
+
 const LISTEN_ADDRESS: &str = "0.0.0.0:8080";
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-struct Spellchecked {
-    original: String,
-    spellchecked: String,
-}
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
@@ -34,7 +32,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
     let body_string = req.body_string().await?;
     let tera = req.state();
     let mut context = tera::Context::new();
-
+    let spellcheck_parser = spellcheck_parser::SpellcheckParser::new();
     if !body_string.is_empty() {
         let decoded_form_data: Vec<(String, String)> = form_urlencoded::parse(body_string.as_bytes())
                                                                     .into_owned()
@@ -45,7 +43,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
                                         .map(|(_, value)| value.clone())
                                         .unwrap_or_default();
         debug!("Received body: {}", body_string_decoded);
-        let spellchecked_sentence = spellcheck(&body_string_decoded).await;
+        let spellchecked_sentence = spellcheck_parser.spellcheck_all(&body_string_decoded);
         context.insert("spellchecked_sentences", &spellchecked_sentence);
     }
     // Because this is both backend and frontend, we render the template for every request
@@ -64,34 +62,4 @@ async fn render_frontend(tera: &Tera, context: tera::Context) -> tide::Result {
     response.insert_header(tide::http::headers::CONTENT_TYPE, "text/html");
 
     Ok(response)
-}
-
-async fn spellcheck(to_spellchek: &str) -> Vec<Spellchecked> {
-    let mut spellchecked_sentence = Vec::new();
-    let spellchecker = spellchecker::Spellchecker::new("dictionary.txt");
-    match spellchecker {
-        Some(spellchecker) => {
-            for original_word in to_spellchek.split_whitespace() {
-                let result = spellchecker.spellcheck(&original_word.to_lowercase());
-                let mut spellchecked_word = match result {
-                    Some(word) => word,
-                    None => original_word.to_string(),
-                };
-                capitalize_if_needed(&original_word, &mut spellchecked_word);
-                spellchecked_sentence.push(Spellchecked {
-                    original: original_word.to_string(),
-                    spellchecked: spellchecked_word,
-                });
-            }
-        }
-        None => error!("Could not create spellchecker!"),
-    }
-    spellchecked_sentence
-}
-
-fn capitalize_if_needed(original_word: &str, spellchecked_word: &mut String) {
-    if original_word.chars().next().unwrap().is_uppercase() {
-        let first_char = spellchecked_word.chars().next().unwrap().to_uppercase().to_string();
-        spellchecked_word.replace_range(..1, &first_char);
-    }
 }
