@@ -21,6 +21,7 @@ async fn main() -> tide::Result<()> {
     tera.autoescape_on(vec!["html"]);
 
     let mut app = tide::with_state(tera);
+    app.at("/static").serve_dir("static/")?;
     app.at("/").get(handle_index).post(handle_index);
     app.listen(LISTEN_ADDRESS).await?;
     info!("Server listening on {}...", LISTEN_ADDRESS);

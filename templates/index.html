@@ -41,13 +41,22 @@
         #textInput:hover {
             border-color: #6c757d;
         }
+
+        #logo {
+            margin-left: 30px;
+            height: 136px;
+            margin-bottom: 20px;
+            background-image: url('/static/logo.png');
+            background-repeat: no-repeat;
+        }
+
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="form-container">
-        <h1 class="text-center mb-4">Spell Check App</h1>
+        <div id="logo"></div>
         <form id="spellCheckForm" action="/" method="post">
             <div class="form-group">
                 <input type="hidden" id="hiddenInput" name="textInput" />

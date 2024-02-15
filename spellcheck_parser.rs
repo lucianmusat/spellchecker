@@ -27,8 +27,7 @@ impl SpellcheckParser {
                     if original_word.is_empty() {
                         continue;
                     }
-                    let spellchecked = self.spellcheck_word(&original_word);
-                    spellchecked_sentence.push(spellchecked);
+                    spellchecked_sentence.push(self.spellcheck_word(&original_word));
                 },
                 false => {
                     spellchecked_sentence.push(Spellchecked {
