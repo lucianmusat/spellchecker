@@ -60,7 +60,7 @@
         <form id="spellCheckForm" action="/" method="post">
             <div class="form-group">
                 <input type="hidden" id="hiddenInput" name="textInput" />
-                <div id="textInput" rows="5" cols="50" placeholder="Enter text here" contenteditable="true">{% if spellchecked_sentences %}{% for word in spellchecked_sentences %}{% if word.original == word.spellchecked %}{{ word.original }}{% else %}<span style="color: red; text-decoration: underline; cursor: pointer;" title="{{ word.spellchecked }}" onclick="replaceWithSpellchecked(this)">{{ word.original }}</span>{% endif %}{% if not loop.last %} {% endif %}{% endfor %}{% else %}My name is proffessor Lucian{% endif %}</textarea>
+                <div id="textInput" oninput="limitCharacters()" rows="5" cols="50" placeholder="Enter text here" contenteditable="true">{% if spellchecked_sentences %}{% for word in spellchecked_sentences %}{% if word.original == word.spellchecked %}{{ word.original }}{% else %}<span style="color: red; text-decoration: underline; cursor: pointer;" title="{{ word.spellchecked }}" onclick="replaceWithSpellchecked(this)">{{ word.original }}</span>{% endif %}{% if not loop.last %} {% endif %}{% endfor %}{% else %}My name is proffessor Lucian{% endif %}</textarea>
             </div>
             <button type="submit" class="btn btn-primary btn-block" onclick="sanitizeAndSubmit()">Spell Check</button>
         </form>
@@ -82,11 +82,19 @@
                 console.log("Sanitized Content: ", sanitizedContent);
                 document.getElementById('hiddenInput').value = sanitizedContent;
             }
-        </script>
-        <script>
+
             function replaceWithSpellchecked(spanElement) {
                 var spellcheckedValue = spanElement.getAttribute('title');
                 spanElement.textContent = spellcheckedValue;
+            }
+
+            function limitCharacters() {
+                var textInput = document.getElementById('textInput');
+                var maxLength = 150;
+
+                if (textInput.innerText.length > maxLength) {
+                    textInput.innerText = textInput.innerText.substring(0, maxLength);
+                }
             }
         </script>
 
