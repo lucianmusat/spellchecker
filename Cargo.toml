@@ -13,6 +13,7 @@ env_logger ={ version = "0.11.1" }
 tera = { version = "1.19.1"}
 tide-tera = { version = "0.2.4" }
 form_urlencoded = "1.2.1"
+rayon ="1.8.1"
 
 [[bin]]
 name = "autocorrect"

@@ -44,7 +44,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
                                         .find(|(key, _)| key == "textInput")
                                         .map(|(_, value)| value.clone())
                                         .unwrap_or_default();
-        let body_string_decoded = body_string_decoded[..body_string_decoded.len().min(MAX_TEXT_LENGTH)].to_string();
+        let body_string_decoded = body_string_decoded[..body_string_decoded.len().min(MAX_TEXT_LENGTH)].trim().to_string();
         debug!("Received body: {}", body_string_decoded);
         let spellchecked_sentence = spellcheck_parser.spellcheck_all(&body_string_decoded);
         context.insert("spellchecked_sentences", &spellchecked_sentence);

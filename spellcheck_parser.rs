@@ -1,6 +1,9 @@
 use crate::spellchecker::Spellchecker;
 use crate::spellchecked::Spellchecked;
 
+use log::debug;
+use rayon::prelude::*;
+
 // The SpellcheckParser is responsible for parsing the input text and spellchecking it
 // It uses the Spellchecker to spellcheck individual words
 pub struct SpellcheckParser {
@@ -19,28 +22,31 @@ impl SpellcheckParser {
         }
     }
 
-    pub fn spellcheck_all(&self, to_spellchek: &str) -> Vec<Spellchecked> {
-        let mut spellchecked_sentence = Vec::new();
-        for original_word in to_spellchek.split_whitespace() {
-            match original_word.chars().all(|c| c.is_alphabetic()) {
-                true => {
-                    if original_word.is_empty() {
-                        continue;
-                    }
-                    spellchecked_sentence.push(self.spellcheck_word(&original_word));
-                },
-                false => {
-                    spellchecked_sentence.push(Spellchecked {
-                        original: original_word.to_string(),
-                        spellchecked: self.spellcheck_with_punctuation(&original_word),
-                    });
-                }
-            }
-        }
-        spellchecked_sentence
+    pub fn spellcheck_all(&self, to_spellcheck: &str) -> Vec<Spellchecked> {
+        to_spellcheck
+            .split_whitespace()
+            .collect::<Vec<&str>>()
+            // Secret sauce is here, Rayon creates a parallel iterator
+            .par_iter()
+            .map(|word| self.process_word(word))
+            .collect()
     }
 
-    fn spellcheck_word(&self, original_word: &str) -> Spellchecked {
+    fn process_word(&self, original_word: &str) -> Spellchecked {
+        debug!("Processing word: {}", original_word);
+        match original_word.chars().all(|c| c.is_alphabetic()) {
+            true => {
+                self.spellcheck_word(original_word).unwrap()
+            }
+            false => Spellchecked {
+                original: original_word.to_string(),
+                spellchecked: self.spellcheck_with_punctuation(original_word),
+            },
+        }
+    }
+
+    fn spellcheck_word(&self, original_word: &str) -> Option<Spellchecked> {
+        if !original_word.is_empty() { () }
         let result = self.spellchecker.spellcheck(&original_word.to_lowercase());
         let mut spellchecked_word = match result {
             Some(word) => word,
@@ -50,7 +56,7 @@ impl SpellcheckParser {
         Spellchecked {
             original: original_word.to_string(),
             spellchecked: spellchecked_word,
-        }
+        }.into()
     }
 
     fn capitalize_if_needed(&self, original_word: &str, spellchecked_word: &mut String) {
@@ -78,7 +84,7 @@ impl SpellcheckParser {
         }
 
         split.push(&text[word_start..]);
-        split.remove(0);
+        split.retain(|&word| !word.is_empty());
         split
     }
 
@@ -87,7 +93,9 @@ impl SpellcheckParser {
         for word in Self::split_by_alphabetic(original_word) {
             if word.chars().all(|c| c.is_alphabetic()) {
                 let spellchecked = self.spellcheck_word(&word);
-                spellchecked_word_with_punctuation.push(spellchecked);
+                if let Some(spellchecked) = spellchecked {
+                    spellchecked_word_with_punctuation.push(spellchecked);
+                }
             } else {
                 spellchecked_word_with_punctuation.push(Spellchecked {
                     original: word.to_string(),
