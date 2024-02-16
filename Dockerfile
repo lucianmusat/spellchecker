@@ -4,6 +4,7 @@ WORKDIR /code
 
 COPY target/release/autocorrect /code/autocorrect
 COPY dictionary.txt /code/
-ADD templates /code/templates
+COPY templates /code/templates/
+COPY static /code/static/
 
 CMD ["/code/autocorrect"]
