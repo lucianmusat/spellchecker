@@ -76,10 +76,8 @@
 <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.4/dist/purify.min.js"></script>
         <script>
             function sanitizeAndSubmit() {
-                var content = document.getElementById('textInput').innerHTML;
-                console.log("Content: ", content);
+                var content = document.getElementById('textInput').innerText.trim();
                 var sanitizedContent = DOMPurify.sanitize(content, { ALLOWED_TAGS: [] });
-                console.log("Sanitized Content: ", sanitizedContent);
                 document.getElementById('hiddenInput').value = sanitizedContent;
             }
 
