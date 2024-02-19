@@ -8,7 +8,7 @@
     <title>Spell Check App</title>
     <style>
         body {
-            background-color: #1E4B5B;
+            background-color: #36738a;
             color: white;
         }
 
@@ -36,10 +36,12 @@
             resize: vertical;
             color: black;
             margin-bottom: 10px;
+            border-radius: 10px;
+            transition: box-shadow 0.3s ease-in-out;
         }
 
         #textInput:hover {
-            border-color: #6c757d;
+            box-shadow: 0 0 5px 2px rgba(231, 76, 60, 0.5);
         }
 
         #logo {
@@ -56,11 +58,11 @@
 
 <div class="container">
     <div class="form-container">
-        <div id="logo"></div>
+        <a href="/"><div id="logo"></div></a>
         <form id="spellCheckForm" action="/" method="post">
             <div class="form-group">
                 <input type="hidden" id="hiddenInput" name="textInput" />
-                <div id="textInput" oninput="limitCharacters()" rows="5" cols="50" placeholder="Enter text here" contenteditable="true">{% if spellchecked_sentences %}{% for word in spellchecked_sentences %}{% if word.original == word.spellchecked %}{{ word.original }}{% else %}<span style="color: red; text-decoration: underline; cursor: pointer;" title="{{ word.spellchecked }}" onclick="replaceWithSpellchecked(this)">{{ word.original }}</span>{% endif %}{% if not loop.last %} {% endif %}{% endfor %}{% else %}My name is proffessor Lucian{% endif %}</textarea>
+                <div id="textInput" oninput="limitCharacters()" rows="5" cols="50" placeholder="Enter text here" contenteditable="true">{% if spellchecked_sentences %}{% for word in spellchecked_sentences %}{% if word.original == word.spellchecked %}{{ word.original }}{% else %}<span style="color: red; text-decoration: underline; cursor: pointer;" title="{{ word.spellchecked }}" onclick="replaceWithSpellchecked(this)">{{ word.original }}</span>{% endif %}{% if not loop.last %} {% endif %}{% endfor %}{% else %}My name is proffessor Mosby?{% endif %}</textarea>
             </div>
             <button type="submit" class="btn btn-primary btn-block" onclick="sanitizeAndSubmit()">Spell Check</button>
         </form>
