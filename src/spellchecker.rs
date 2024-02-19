@@ -71,7 +71,6 @@ impl Spellchecker {
 
         matrix[a.len()][b.len()]
     }
-
 }
 
 #[cfg(test)]
@@ -150,5 +149,4 @@ mod test {
         let result = spellchecker.wagner_fischer("kitten", "kitten");
         assert_eq!(result, 0);
     }
-
 }
