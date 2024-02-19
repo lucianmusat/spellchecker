@@ -38,7 +38,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
     let body_string = req.body_string().await?;
     let tera = req.state();
     let mut context = tera::Context::new();
-    let spellcheck_parser = spellcheck_parser::SpellcheckParser::new();
+    let spellcheck_parser = SpellcheckParser::new();
     if spellcheck_parser.is_err() {
         let response = generate_error_response(spellcheck_parser);
         return Ok(response);
