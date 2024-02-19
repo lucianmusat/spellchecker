@@ -4,11 +4,13 @@ mod spellcheck_parser;
 
 use log::{info, debug, error};
 use tera::Tera;
+use crate::spellcheck_parser::SpellcheckParser;
 
 #[macro_use]
 extern crate serde_json;
 
 const LISTEN_ADDRESS: &str = "0.0.0.0:8080";
+const TEXT_INPUT_NAME: &str = "textInput";
 const MAX_TEXT_LENGTH: usize = 150;
 
 
@@ -38,13 +40,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
     let mut context = tera::Context::new();
     let spellcheck_parser = spellcheck_parser::SpellcheckParser::new();
     if spellcheck_parser.is_err() {
-        let error_message = format!("Failed to initialize SpellcheckParser: {}", spellcheck_parser.err().unwrap());
-        error!("{}", error_message);
-        let response_body = json!({
-            "error": error_message,
-        });
-        let mut response = tide::Response::new(tide::StatusCode::InternalServerError);
-        response.set_body(serde_json::to_string(&response_body)?);
+        let response = generate_error_response(spellcheck_parser);
         return Ok(response);
     }
     if !body_string.is_empty() {
@@ -53,7 +49,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
                                                                     .collect();
         let body_string_decoded =  decoded_form_data
                                         .iter()
-                                        .find(|(key, _)| key == "textInput")
+                                        .find(|(key, _)| key == TEXT_INPUT_NAME)
                                         .map(|(_, value)| value.clone())
                                         .unwrap_or_default();
         let body_string_decoded = body_string_decoded[..body_string_decoded.len().min(MAX_TEXT_LENGTH)].trim().to_string();
@@ -63,6 +59,18 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
     }
     // Because this is both backend and frontend, we render the template for every request
     Ok(render_frontend(tera, context).await?)
+}
+
+fn generate_error_response(spellcheck_parser: Result<SpellcheckParser, String>) -> tide::Response {
+    let error_message = format!("Failed to initialize SpellcheckParser: {}", spellcheck_parser.err().unwrap());
+    error!("{}", error_message);
+    let response_body = json!({
+            "error": error_message,
+        });
+    let mut response = tide::Response::new(tide::StatusCode::InternalServerError);
+    response.set_body(serde_json::to_string(&response_body).unwrap());
+    response.insert_header(tide::http::headers::CONTENT_TYPE, "application/json");
+    response
 }
 
 async fn render_frontend(tera: &Tera, context: tera::Context) -> tide::Result {
@@ -75,6 +83,5 @@ async fn render_frontend(tera: &Tera, context: tera::Context) -> tide::Result {
     let mut response = tide::Response::new(tide::StatusCode::Ok);
     response.set_body(rendered_content);
     response.insert_header(tide::http::headers::CONTENT_TYPE, "text/html");
-
     Ok(response)
 }
