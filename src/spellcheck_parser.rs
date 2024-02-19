@@ -12,13 +12,13 @@ pub struct SpellcheckParser {
 
 impl SpellcheckParser {
 
-    pub fn new() -> SpellcheckParser {
+    pub fn new() -> Result<SpellcheckParser, String> {
         let spellchecker = Spellchecker::new("dictionary.txt");
         match spellchecker {
-            Some(spellchecker) => {
-                SpellcheckParser { spellchecker }
-            }
-            None => panic!("Could not create spellchecker"),
+            Ok(spellchecker) => Ok(SpellcheckParser {
+                spellchecker,
+            }),
+            Err(err_message) => Err(err_message),
         }
     }
 

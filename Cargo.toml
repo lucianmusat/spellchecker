@@ -17,4 +17,4 @@ rayon ="1.8.1"
 
 [[bin]]
 name = "autocorrect"
-path = "main.rs"
+path = "src/main.rs"

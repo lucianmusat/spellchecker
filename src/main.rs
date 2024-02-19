@@ -5,6 +5,8 @@ mod spellcheck_parser;
 use log::{info, debug, error};
 use tera::Tera;
 
+#[macro_use]
+extern crate serde_json;
 
 const LISTEN_ADDRESS: &str = "0.0.0.0:8080";
 const MAX_TEXT_LENGTH: usize = 150;
@@ -35,6 +37,16 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
     let tera = req.state();
     let mut context = tera::Context::new();
     let spellcheck_parser = spellcheck_parser::SpellcheckParser::new();
+    if spellcheck_parser.is_err() {
+        let error_message = format!("Failed to initialize SpellcheckParser: {}", spellcheck_parser.err().unwrap());
+        error!("{}", error_message);
+        let response_body = json!({
+            "error": error_message,
+        });
+        let mut response = tide::Response::new(tide::StatusCode::InternalServerError);
+        response.set_body(serde_json::to_string(&response_body)?);
+        return Ok(response);
+    }
     if !body_string.is_empty() {
         let decoded_form_data: Vec<(String, String)> = form_urlencoded::parse(body_string.as_bytes())
                                                                     .into_owned()
@@ -46,7 +58,7 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
                                         .unwrap_or_default();
         let body_string_decoded = body_string_decoded[..body_string_decoded.len().min(MAX_TEXT_LENGTH)].trim().to_string();
         debug!("Received body: {}", body_string_decoded);
-        let spellchecked_sentence = spellcheck_parser.spellcheck_all(&body_string_decoded);
+        let spellchecked_sentence = spellcheck_parser.unwrap().spellcheck_all(&body_string_decoded);
         context.insert("spellchecked_sentences", &spellchecked_sentence);
     }
     // Because this is both backend and frontend, we render the template for every request
