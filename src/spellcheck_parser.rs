@@ -26,7 +26,7 @@ impl SpellcheckParser {
         to_spellcheck
             .split_whitespace()
             .collect::<Vec<&str>>()
-            // Secret sauce is here, Rayon creates a parallel iterator
+            // Secret sauce is here, Rayon parallel iterator
             .par_iter()
             .map(|word| self.process_word(word))
             .collect()

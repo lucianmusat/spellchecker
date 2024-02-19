@@ -30,7 +30,6 @@ async fn main() -> tide::Result<()> {
     app.at("/").get(handle_index).post(handle_index);
     app.listen(LISTEN_ADDRESS).await?;
     info!("Server listening on {}...", LISTEN_ADDRESS);
-
     Ok(())
 }
 
