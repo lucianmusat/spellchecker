@@ -1,5 +1,7 @@
 # Spellchecker
 
+![How it looks](screenshot.png)
+
 ### What is it?
 
 A small project that I started to learn Rust. It's just a text box where you input a text and it will return a spellchecked version.
