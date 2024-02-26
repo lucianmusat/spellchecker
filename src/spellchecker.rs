@@ -10,11 +10,11 @@ pub struct Spellchecker {
 impl Spellchecker {
 
     pub fn new(dictionary_file: &str) -> Result<Spellchecker, String> {
-        if !fs::metadata(dictionary_file).is_ok() {
+        if fs::metadata(dictionary_file).is_err() {
             return Err(format!("Dictionary file '{}' not found", dictionary_file));
         }
         let mut dictionary = Vec::new();
-        let reader = BufReader::new(fs::File::open(&dictionary_file)
+        let reader = BufReader::new(fs::File::open(dictionary_file)
                                     .map_err(|e| format!("Could not open file: {}", e))?);
         for line in reader.lines() {
             let line = line.expect("Could not read line");
@@ -29,7 +29,7 @@ impl Spellchecker {
         let mut closest_word = None;
 
         for dict_word in &self.dictionary {
-            let distance = self.wagner_fischer(word, &dict_word);
+            let distance = self.wagner_fischer(word, dict_word);
             if distance < min_distance {
                 min_distance = distance;
                 closest_word = Some(dict_word.to_string());
@@ -42,8 +42,8 @@ impl Spellchecker {
     fn wagner_fischer(&self, a: &str, b: &str) -> usize {
         let mut matrix = vec![vec![0; b.len() + 1]; a.len() + 1];
 
-        for i in 0..a.len() + 1 {
-            matrix[i][0] = i;
+        for (i, row) in matrix.iter_mut().enumerate().take(a.len() + 1) {
+            row[0] = i;
         }
 
         for j in 0..b.len() + 1 {

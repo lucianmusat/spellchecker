@@ -52,7 +52,7 @@ impl SpellcheckParser {
             Some(word) => word,
             None => original_word.to_string(),
         };
-        self.capitalize_if_needed(&original_word, &mut spellchecked_word);
+        self.capitalize_if_needed(original_word, &mut spellchecked_word);
         Spellchecked {
             original: original_word.to_string(),
             spellchecked: spellchecked_word,
@@ -92,7 +92,7 @@ impl SpellcheckParser {
         let mut spellchecked_word_with_punctuation = Vec::new();
         for word in Self::split_by_alphabetic(original_word) {
             if word.chars().all(|c| c.is_alphabetic()) {
-                let spellchecked = self.spellcheck_word(&word);
+                let spellchecked = self.spellcheck_word(word);
                 if let Some(spellchecked) = spellchecked {
                     spellchecked_word_with_punctuation.push(spellchecked);
                 }

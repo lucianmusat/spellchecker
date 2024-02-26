@@ -6,9 +6,6 @@ use log::{info, debug, error};
 use tera::Tera;
 use crate::spellcheck_parser::SpellcheckParser;
 
-#[macro_use]
-extern crate serde_json;
-
 const LISTEN_ADDRESS: &str = "0.0.0.0:8080";
 const TEXT_INPUT_NAME: &str = "textInput";
 const MAX_TEXT_LENGTH: usize = 150;
@@ -57,13 +54,13 @@ async fn handle_index(mut req: tide::Request<Tera>) -> tide::Result {
         context.insert("spellchecked_sentences", &spellchecked_sentence);
     }
     // Because this is both backend and frontend, we render the template for every request
-    Ok(render_frontend(tera, context).await?)
+    render_frontend(tera, context).await
 }
 
 fn generate_error_response(spellcheck_parser: Result<SpellcheckParser, String>) -> tide::Response {
     let error_message = format!("Failed to initialize SpellcheckParser: {}", spellcheck_parser.err().unwrap());
     error!("{}", error_message);
-    let response_body = json!({
+    let response_body = serde_json::json!({
             "error": error_message,
         });
     let mut response = tide::Response::new(tide::StatusCode::InternalServerError);
